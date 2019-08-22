@@ -143,6 +143,18 @@ bool ListInsert(LinkList *&L, int i, ElemType e){
 	}
 }
 
+//在有序单链表的情况下插入数据元素 
+void OrderListInsert(LinkList *&L, ElemType e){
+	LinkList *pre = L, *p;
+//	查找要插入节点的前驱节点*pre 
+	while(pre->next!=NULL &&pre->next->data<e)
+		pre = pre->next;
+	p = (LinkList *)malloc(sizeof(LinkList));
+	p->data = e;	//创建存放e的数据节点*p 
+	p->next = pre->next;	//在*pre节点之后插入*p节点 
+	pre->next = p;
+}
+
 //删除数据元素，时间复杂度为O(n)
 bool ListDelete(LinkList *&L, int i, ElemType &e){
 	int j=0;
@@ -204,8 +216,8 @@ void delMaxNode(LinkList *&L){
 }
 
 //将一个至少有一个数据节点的单链表L，进行递增排序
-	//先只留第一个元素作为一个单链表
-	//再一个一个比较来决定头插法还是尾插法 
+//	先只留第一个元素作为一个单链表
+//	再一个一个比较来决定头插法还是尾插法 
 void sort(LinkList *&L){
 	LinkList *p, *pre, *q;
 	p = L->next->next;	//p指向第二个数据节点 
@@ -234,6 +246,87 @@ int count(LinkList *L, ElemType x){
 	}
 	return n;
 }
+
+//两有序单链表的归并 
+//	条件：从小到大排列 
+void UnionList1(LinkList *LA, LinkList *LB, LinkList *&LC){
+	LinkList *pa=LA->next, *pb=LB->next, *r, *s;
+	LC = (LinkList *)malloc(sizeof(LinkList));	//创建LC头节点
+	r = LC;
+	while(pa!=NULL && pb!= NULL){
+		if(pa->data < pb->data){
+			s = (LinkList *)malloc(sizeof(LinkList));	//复制*pa节点
+			s->data = pa->data;
+			r->next = s;	//采用尾插法将*s节点接到LC尾部 
+			r=s;
+			pa=pa->next;
+		}else{
+			s = (LinkList *)malloc(sizeof(LinkList));	//复制*pb节点
+			s->data = pb->data;
+			r->next = s;	//采用尾插法将*s节点接到LC尾部 
+			r=s;
+			pb=pb->next;
+		}
+	}
+	while(pa!=NULL){
+		s = (LinkList *)malloc(sizeof(LinkList));	//复制*pa节点
+			s->data = pb->data;
+		r->next = s;	//采用尾插法将*s节点接到LC尾部 
+		r=s;
+		pa=pa->next;
+	}
+	while(pb!=NULL){
+		s = (LinkList *)malloc(sizeof(LinkList));	//复制*pb节点
+			s->data = pb->data;
+		r->next = s;	//采用尾插法将*s节点接到LC尾部 
+		r=s;
+		pb=pb->next;
+	}
+	r->next = NULL;	//尾节点next置空 
+}
+
+//3个递增排序的有序单链表(每个单链表不存在数据值相同的节点，但3个单链表中可能存在数据值相同的节点)
+//将三个有序单链表包含的所有数据元素整合到LA中，只留下共有且不重复的元素
+//时间复杂度为O(m+n+p)，m、n、p分别为3个表的长度
+//同样是利用尾插法建表 
+void Commnode(LinkList *&LA, LinkList *LB, LinkList *LC){
+	LinkList *pa=LA->next, *pb=LB->next, *pc=LC->next, *q, *r;
+	LA->next = NULL;	//此时LA作为新建单链表的头节点 
+	r = LA;	//r始终指向新单链表的尾节点 
+	while(pa!=NULL){
+//		*pa节点与LB中节点进行比较 
+		while(pb!=NULL && pa->data > pb->data)
+			pb = pb->next;
+//		*pa节点与LC中节点进行比较 
+		while(pc!=NULL && pa->data >pc->data)
+			pc = pc->next;
+		if(pb!=NULL && pc!=NULL &&pa->data==pb->data && pa->data==pc->data){
+			r->next = pa;	//将*pa节点插入到LA中 
+			r=pa;
+			pa = pa->next;	//pa移到下一个节点 
+		}else{	//pa所指节点不是公共节点，则删除它 
+			q=pa;
+			pa=pa->next;	//pa移到下一个节点 
+			free(q);	//释放非公共节点 
+		}
+	}
+	r->next = NULL;	//尾节点的next置空 
+}
+
+//删除有序单链表的重复值节点，时间复杂度O(n) 
+void dels(LinkList *&L){
+	LinkList *p = L->next,*q;
+	while(p->next!=NULL){
+		//找到重复值的节点
+		if(p->data==p->next->data){
+			q = p->next;	//q指向这个重复值的节点
+			p->next = q->next;	//释放*q节点内存 
+			free(q); 
+		}
+		else
+			p = p->next;	//不是重复节点，p指针下移 
+	}
+} 
 
 main(){
 	LinkList *L;

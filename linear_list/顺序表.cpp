@@ -82,7 +82,19 @@ bool ListInsert(SqList *&L, int i, ElemType e){
 	L->data[i] = e;	//插入元素e 
 	L->length++;	//顺序表长度增1
 	return true;	//成功插入返回true 
-} 
+}
+
+//在有序表情况下的插入数据元素方法，时间复杂度为O(n)
+//	条件：data的长度足够长；L内元素从小到大排列 
+void OrderListInsert(SqList *&L,ElemType e){
+	int i=0, j;
+	while(i<L->length && L->data[i]<e)	//查找值不小于e的元素data[i]
+		i++;
+	for(j=ListLength(L); j>i; j--)	//将data[i]以及后面的元素全部后移一个位置 
+		L->data[j] = L->data[j-1];
+	L->data[i] = e;
+	L->length++;	//有序表长度增1 
+}
 
 //删除数据元素，时间复杂度为O(n) 
 bool ListDelete(SqList *&L, int i, ElemType &e){
@@ -128,7 +140,11 @@ void delnode_2(SqList *&L, ElemType x){
 }
 
 //以第一个元素为分界线，将所有小于等于它的元素置前
-//	将所有大于它的元素置后 
+//	将所有大于它的元素置后
+
+//第一种，从两端往中间遍历，每找到一对就进行互换，
+//	直到最后i与j会停留在同一个点，这个点上的元素值绝对小于等于被比较值
+//	此时将位置o与位置i(或j)上的值互换
 void move_1(SqList *&L){
 	int i=0, j=L->length-1;
 	ElemType pivot = L->data[0];	//以data[0]为基准 
@@ -156,6 +172,10 @@ void move_1(SqList *&L){
 	cout<<"i = "<<i<<endl;
 }
 
+//第二种，先将位置0上的值取出暂存为pivot，此时位置0上已经留出一个坑位 
+//	从右端开始不断交替从两端向中间扫描，每次扫描到符合条件的元素便将此元素值填入上一次操作空出的坑位
+//	填进坑位后，原本的位置又留出坑位给下一次操作填入
+//	最后i，j会停留在同一个点上，这个点为一个空的坑位，这时填入一开始取出的pivot值 
 void move_2(SqList *&L){
 	int i=0, j = L->length-1;
 	ElemType pivot = L->data[0];	//以data[0]为基准
@@ -174,6 +194,33 @@ void move_2(SqList *&L){
 //	循环结束时，位置i上的元素已经转移到位置j上了，此时位置i置pivot 
 	L->data[i] = pivot;
 	cout<<"i = "<<i<<endl;
+}
+
+//有序顺序表的二表归并
+void UnionList(SqList *LA, SqList *LB, SqList *&LC){
+	int i=0, j=0, k=0;	//i,j分别为LA、LB的下标，k为LC中元素个数
+	LC = (SqList *)malloc(sizeof(SqList));	//建立有序顺序表LC
+	while(i<LA->length && j<LB->length){
+//		如果LA当前元素值小于LB当前元素值，LC接入LA当前元素，否则接入LB当前元素 
+		if(LA->data[i]<LB->data[j]){
+			LC->data[k] = LA->data[i];
+			k++;i++;			
+		}else{
+			LC->data[k] = LB->data[j];
+			k++;j++;
+		}
+	}
+//	当其中一个表遍历完成以后且另一个表还有剩余时，将剩余的元素接在LC之后
+	while(i<LA->length){
+		LC->data[k] = LA->data[i];
+		k++;i++;
+	}
+	while(j<LB->length){
+		LC->data[k] = LB->data[j];
+		k++;j++;
+	}
+	LC->length = k;
+	
 } 
 
 main(){
