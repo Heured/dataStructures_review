@@ -82,6 +82,7 @@ bool mgpath(int xi, int yi, int xe, int ye){	//求解路径为(xi,yi)->(xe,ye)
 	return false;	//表示没有可走路径，返回false 
 }
 
+//本次解迷宫算法与树的深度优先算法类似，扫描到一个儿子就进入下一代进行扫描 
 main(){
 	if(!mgpath(1,1,M,N))
 		cout<<"该迷宫问题无解！";
