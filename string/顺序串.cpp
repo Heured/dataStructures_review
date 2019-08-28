@@ -189,10 +189,109 @@ void LongestString(SqString s,int &index, int &max){
 			start = i;
 			length = 1;	//初始化下一个子串的起始位置和长度 
 		}
-} 
+}
+
+//用BF算法(Brute-Force)，在串s中找到与串t相等的子串 
+//	匹配成功返回子串开始位置，失败返回-1
+int index(SqString s, SqString t){
+	int i=0,j=0;
+	while(i<s.length &&j<t.length){
+		if(s.data[i] == t.data[j]){
+			i++;
+			j++;	//继续匹配下一个字符 
+		}else{
+//		如果当前字符不匹配，则i返回到s串与t串匹配的开始位置的下一位，j置0 
+			i = i-j+1;
+			j = 0;
+		}
+	}
+//	如果j大等于串t的长度，表示串s包含于串t相等的子串，返回开始匹配位置 
+	if(j>=t.length)
+		return (i-t.length);
+	else
+		return -1;
+}
+
+//用KMP算法(Knuth = Morris-Pratt)，在串s中找到与串t相等的子串 
+//	匹配成功返回子串开始位置，失败返回-1
+//对模式串t求next[]值
+//	个人理解为， data[0,i-1]与data[j-i,j-1]相等(j>i>0)，则next[j]=i 
+void GetNext(SqString t,int next[]){
+	int j,k;
+	j = 0;
+	k = -1;
+	next[0] = -1;
+	while(j<t.length-1){
+//		k=-1有两种情况，1：开始时，需要将next[1]置为0，所以需要将k先置为-1
+//						2：data[j]与data[0]匹配不成功，k置为-1，将导致next[j+1]置为0
+//		如果data[j]与data[k]匹配成功，next[j+1]置为k+1 
+		if(k == -1 || t.data[j] == t.data[k]){
+			j++;
+			k++;
+			next[j] = k;
+		}else
+			k = next[k];
+	}
+}
+int KMPIndex(SqString s, SqString t){
+	int next[MaxSize], i=0, j=0;
+	GetNext(t,next);
+	while(i<s.length && j<t.length){
+//		j=-1表示匹配第一个字符不成功，串s的开始匹配位置下移一位，j置0 
+		if(j == -1 || s.data[i] == t.data[j]){
+			i++;
+			j++;
+		}else
+			j = next[j];	//i不变,j后退 
+	}
+	if(j>=t.length)
+		return (i-t.length);
+	else
+		return -1;
+}
+
+//用修正过的KMP算法(Knuth = Morris-Pratt)，在串s中找到与串t相等的子串 
+//	匹配成功返回子串开始位置，失败返回-1
+//对模式串t求nextval[]值
+//	个人理解为， data[0,i]与data[j-i,j]相等(j>i>0)，则next[j]=next[i]
+//				data[0,i-1]与data[j-i,j-1]相等而且data[i]与data[j]不相等(j>i>0)，则next[j] = i;
+void GetNextval(SqString t,int nextval[]){
+	int j = 0, k = -1;
+	nextval[0] = -1;
+	while(j<t.length){
+		if(k == -1 || t.data[j] == t.data[k]){
+			j++;
+			k++;
+//			匹配成功后，j,k后移一位，若不相等 
+			if(t.data[j]!=t.data[k])
+				nextval[j] = k;
+			else
+//			匹配成功，j,k后移一位，若相等 
+				nextval[j] = nextval[k];
+		}else
+			k = nextval[k];
+	}
+}
+int KMPIndex1(SqString s,SqString t){
+	int nextval[MaxSize], i=0, j=0;
+	GetNextval(t,nextval);
+	while(i<s.length && j<t.length){
+		if(j == -1 || s.data[i] == t.data[j]){
+			i++;
+			j++;
+		}else
+			j = nextval[j];
+	}
+	if(j>=t.length)
+		return (i-t.length);
+	else
+		return -1;
+	
+}
+
 
 main(){
-	char a[] = "asddsa",b[] = "123";
+	char a[] = "asddsa",b[] = "123", c[] = "dds", d[] = "abcacabc";
 	SqString str,str2,str3;
 	StrAssign(str,a);
 
@@ -224,9 +323,28 @@ main(){
 //	StrAssign(str2,b);
 //	cout<<Strcmp(str,str2)<<" "<<Strcmp(str2,str2);
 
-	int index,max;
-	LongestString(str,index,max);
-	DispStr(str);
-	cout<<"最长连续相同字符子串: ";
-	DispStr(SubStr(str,index+1,max));
+//	int index,max;
+//	LongestString(str,index,max);
+//	DispStr(str);
+//	cout<<"最长连续相同字符子串: ";
+//	DispStr(SubStr(str,index+1,max));
+
+//	StrAssign(str2,c); 
+//	cout<<index(str,str2)<<endl;
+//	cout<<KMPIndex(str,str2)<<endl;
+//	cout<<KMPIndex1(str,str2)<<endl;
+	
+	int next[MaxSize],next1[MaxSize];
+	StrAssign(str2,d);
+	GetNext(str2,next);
+	GetNextval(str2,next1);
+	for(int i=0;i<8;i++)
+		cout<<next[i]<<" ";
+	cout<<endl;
+	for(int i=0;i<8;i++)
+		cout<<next1[i]<<" ";
+	cout<<endl;
+	
+	 
+	
 }
