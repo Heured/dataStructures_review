@@ -289,9 +289,20 @@ int KMPIndex1(SqString s,SqString t){
 	
 }
 
+//	递归对串求逆
+//	递归模型	f(s) = Concat(f(SubStr(s,2,StrLength(s)-1)), SubStr(s,1,1))	如果s="*"或为空 f(s) = s;
+SqString invert(SqString s){
+	SqString s1, s2;
+	if(StrLength(s)>0){
+		s1 = invert(SubStr(s, 2, StrLength(s)-1));
+		s2 = Concat(s1,SubStr(s,1,1));
+	}else
+		StrCopy(s2,s);
+	return s2;
+}
 
 main(){
-	char a[] = "asddsa",b[] = "123", c[] = "dds", d[] = "abcacabc";
+	char a[] = "asddsea",b[] = "123", c[] = "dds", d[] = "abcacabc";
 	SqString str,str2,str3;
 	StrAssign(str,a);
 
@@ -334,17 +345,17 @@ main(){
 //	cout<<KMPIndex(str,str2)<<endl;
 //	cout<<KMPIndex1(str,str2)<<endl;
 	
-	int next[MaxSize],next1[MaxSize];
-	StrAssign(str2,d);
-	GetNext(str2,next);
-	GetNextval(str2,next1);
-	for(int i=0;i<8;i++)
-		cout<<next[i]<<" ";
-	cout<<endl;
-	for(int i=0;i<8;i++)
-		cout<<next1[i]<<" ";
-	cout<<endl;
+//	int next[MaxSize],next1[MaxSize];
+//	StrAssign(str2,d);
+//	GetNext(str2,next);
+//	GetNextval(str2,next1);
+//	for(int i=0;i<8;i++)
+//		cout<<next[i]<<" ";
+//	cout<<endl;
+//	for(int i=0;i<8;i++)
+//		cout<<next1[i]<<" ";
+//	cout<<endl;
 	
-	 
+	DispStr(invert(str));
 	
 }

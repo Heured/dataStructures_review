@@ -220,8 +220,25 @@ void UnionList(SqList *LA, SqList *LB, SqList *&LC){
 		k++;j++;
 	}
 	LC->length = k;
-	
-} 
+}
+
+//用递归寻找最大元素
+//递归模型 max(a[0,n]) = max(max(a[0,i-1]), max(a[i,n]))	max(a[0,0]) = a[0]
+ElemType Max(SqList *L, int i, int j){
+	int mid;
+	ElemType max, max1, max2;
+//	递归出口 
+	if(i==j)
+		max = L->data[i];
+	else{
+//		递归体
+		mid = (i+j)/2;
+		max1 = Max(L,i,mid);
+		max2 = Max(L,mid+1,j);
+		max = max1>max2?max1:max2; 
+	}
+	return max;
+}
 
 main(){
 //	ElemType a[] = {1,2,3,4,5,6,7};
@@ -230,14 +247,20 @@ main(){
 	CreateList(L,a,7);
 	ElemType e = 3;
 //	GetElem(L,5,e);
+
 //	e = LocateElem(L,4);
+
 //	ListInsert(L,3,e);
+
 //	ListDelete(L,5,e);
+
 //	delnode_1(L,7);
 //	delnode_2(L,7);
+
 //	move_1(L);
 //	move_2(L);
 
+//	e = Max(L,0,6);
 
 	DispList(L);
 	cout<<e;
