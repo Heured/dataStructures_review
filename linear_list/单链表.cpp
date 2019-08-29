@@ -328,6 +328,15 @@ void dels(LinkList *&L){
 	}
 } 
 
+//递归实现释放单链表 
+//	可以看出是从尾节点开始释放内存的 
+void release(LinkList *L){
+	if(L!=NULL){
+		release(L->next);
+		free(L);
+	}
+}
+
 main(){
 	LinkList *L;
 //	LinkList *L1, *L2;
